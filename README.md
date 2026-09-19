@@ -4,6 +4,26 @@
 
 LifePrint is a research prototype that explores how longitudinal personal health data can be used to learn individual-specific patterns and generate personalized, explainable health-event predictions.
 
+## Architecture
+
+The project has been refactored to separate the Python intelligence layer from the frontend in preparation for a React + FastAPI architecture.
+
+```
+Data
+  ↓
+Data Loader (data/loader.py)
+  ↓
+Analytics (services/analytics.py)
+  ↓
+Prediction (services/prediction.py)
+  ↓
+Graph (services/graph.py)
+  ↓
+What-If (services/what_if.py)
+  ↓
+UI (app.py - Streamlit Adapter)
+```
+
 ## Current Prototype
 
 The prototype currently demonstrates:

@@ -1,45 +1,19 @@
-import pandas as pd
+from data.loader import load_health_data
+from services.graph import build_health_graph
 
-from analytics import discover_headache_relationships
+df = load_health_data("data/health_data.csv")
 
-from graph import build_health_graph
-
-
-# Load health history
-df = pd.read_csv(
-    "data/health_data.csv"
-)
-
-
-# Discover relationships
-relationships = discover_headache_relationships(
-    df
-)
-
-
-# Build Personal Health Graph
-graph = build_health_graph(
-    relationships
-)
-
+graph = build_health_graph(df)
 
 print("\n========== LIFEPRINT HEALTH GRAPH ==========\n")
-
 print("NODES:")
-
 for node in graph.nodes:
-
-    print(
-        f"  • {node}"
-    )
-
+    print(f"  - {node}")
 
 print("\nRELATIONSHIPS:")
-
 for source, target, data in graph.edges(data=True):
-
     print(
-        f"  {source} → {target} | "
+        f"  {source} -> {target} | "
         f"strength: {data['strength']:.3f} | "
         f"direction: {data['direction']}"
     )

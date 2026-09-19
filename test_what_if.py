@@ -1,26 +1,10 @@
-import pandas as pd
+from data.loader import load_health_data
+from services.prediction import train_model
+from services.what_if import simulate_what_if
 
-from model import (
-    train_model,
-    predict_headache
-)
-
-from what_if import (
-    simulate_health_change
-)
-
-
-# Load historical data
-df = pd.read_csv(
-    "data/health_data.csv"
-)
-
-
-# Train model
+df = load_health_data("data/health_data.csv")
 model = train_model(df)
 
-
-# Current health
 current = {
     "sleep_hours": 5.2,
     "hydration_liters": 1.4,
@@ -29,17 +13,9 @@ current = {
     "caffeine": 3
 }
 
-
-# Current prediction
-current_risk = predict_headache(
-    model,
-    current
-)
-
-
-# Hypothetical improved conditions
-simulated_risk = simulate_health_change(
-    model,
+result = simulate_what_if(
+    model=model,
+    current_health=current,
     sleep=8.0,
     hydration=2.5,
     stress=3,
@@ -47,24 +23,11 @@ simulated_risk = simulate_health_change(
     caffeine=1
 )
 
-
 print("\n========== WHAT-IF SIMULATION ==========\n")
-
-print(
-    f"Current headache likelihood: "
-    f"{current_risk * 100:.1f}%"
-)
-
-print(
-    f"Simulated headache likelihood: "
-    f"{simulated_risk * 100:.1f}%"
-)
-
-change = (
-    simulated_risk - current_risk
-) * 100
+print(f"Current headache likelihood: {result['current_risk'] * 100:.1f}%")
+print(f"Simulated headache likelihood: {result['simulated_risk'] * 100:.1f}%")
 
 print(
     f"\nChange in model estimate: "
-    f"{change:+.1f} percentage points"
+    f"{result['difference'] * 100:+.1f} percentage points"
 )
