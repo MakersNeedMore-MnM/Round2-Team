@@ -14,17 +14,11 @@ from services.graph import build_health_graph
 from services.what_if import simulate_what_if
 
 
-# ============================================================
-# CONFIG & DEMO DATA
-# ============================================================
-DEMO_CURRENT_HEALTH = {
-    "sleep_hours": 5.2,
-    "hydration_liters": 1.4,
-    "stress": 8,
-    "activity_steps": 4000,
-    "caffeine": 3
-}
+from services.user import get_user_health_summary, get_user_data
 
+# ============================================================
+# CONFIG
+# ============================================================
 health_features = [
     "sleep_hours",
     "hydration_liters",
@@ -72,16 +66,9 @@ def get_model(data):
     return train_model(data)
 
 model = get_model(df)
-baseline = calculate_baseline(df)
-today = DEMO_CURRENT_HEALTH
-comparison = compare_to_baseline(today, baseline)
-risk = predict_headache(model, today)
-explanations = explain_prediction(model, today)
-pattern = headache_sleep_pattern(df)
-
 
 # ============================================================
-# SIDEBAR
+# SIDEBAR & USER SELECTION
 # ============================================================
 st.sidebar.title("🧬 LifePrint")
 st.sidebar.markdown(
@@ -92,6 +79,22 @@ st.sidebar.markdown(
     from your longitudinal health history.
     """
 )
+
+user_ids = df["user_id"].unique().tolist()
+selected_user_id = st.sidebar.selectbox("Select User Profile", user_ids)
+
+# Generate personalized summary
+user_summary = get_user_health_summary(df, selected_user_id)
+user_df = get_user_data(df, selected_user_id)
+
+today = user_summary["today"]
+personal_baseline = user_summary["personal_baseline"]
+comparison = user_summary["deviations"]
+patterns = user_summary["patterns"]
+
+risk = predict_headache(model, today)
+explanations = explain_prediction(model, today)
+pattern = headache_sleep_pattern(user_df)
 
 section = st.sidebar.radio(
     "Navigate",
@@ -121,7 +124,7 @@ if section == "Dashboard":
 
     for col, feature in zip(cols, health_features):
         current_val = today[feature]
-        deviation = comparison[feature]
+        deviation = comparison[feature]["percent_difference"]
         
         col.metric(
             labels[feature],
@@ -173,7 +176,7 @@ if section == "Dashboard":
     for col, feature in zip(baseline_cols, health_features):
         col.metric(
             labels[feature],
-            f"{baseline[feature]:.2f}"
+            f"{personal_baseline[feature]:.2f}"
         )
 
 
@@ -188,7 +191,7 @@ elif section == "Health Timeline":
         "how your health changes over time."
     )
 
-    chart_data = df.copy()
+    chart_data = user_df.copy()
     chart_data["date"] = pd.to_datetime(chart_data["date"])
     chart_data = chart_data.set_index("date")
 
@@ -222,7 +225,7 @@ elif section == "Personal Health Graph":
         "longitudinal health history."
     )
 
-    graph = build_health_graph(df)
+    graph = build_health_graph(user_df)
 
     st.subheader("Learned Relationships")
     for source, target, data in graph.edges(data=True):
@@ -274,13 +277,13 @@ elif section == "What-If Simulator":
     col1, col2 = st.columns(2)
 
     with col1:
-        sleep = st.slider("Sleep (hours)", min_value=3.0, max_value=10.0, value=5.2, step=0.1)
-        hydration = st.slider("Hydration (liters)", min_value=0.5, max_value=4.0, value=1.4, step=0.1)
-        stress = st.slider("Stress", min_value=0, max_value=10, value=8)
+        sleep = st.slider("Sleep (hours)", min_value=3.0, max_value=10.0, value=float(today["sleep_hours"]), step=0.1)
+        hydration = st.slider("Hydration (liters)", min_value=0.5, max_value=4.0, value=float(today["hydration_liters"]), step=0.1)
+        stress = st.slider("Stress", min_value=0, max_value=10, value=int(today["stress"]))
 
     with col2:
-        activity = st.slider("Activity (steps)", min_value=1000, max_value=15000, value=4000, step=500)
-        caffeine = st.slider("Caffeine", min_value=0, max_value=6, value=3, step=1)
+        activity = st.slider("Activity (steps)", min_value=1000, max_value=15000, value=int(today["activity_steps"]), step=500)
+        caffeine = st.slider("Caffeine", min_value=0, max_value=6, value=int(today["caffeine"]), step=1)
 
     result = simulate_what_if(
         model=model,

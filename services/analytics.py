@@ -1,37 +1,49 @@
 import pandas as pd
+import numpy as np
 
 def calculate_baseline(df):
     """
     Calculate the individual's normal health values
     from their historical data.
     """
-    baseline = {
-        "sleep_hours": df["sleep_hours"].mean(),
-        "hydration_liters": df["hydration_liters"].mean(),
-        "stress": df["stress"].mean(),
-        "activity_steps": df["activity_steps"].mean(),
-        "caffeine": df["caffeine"].mean()
+    return {
+        "sleep_hours": round(float(df["sleep_hours"].mean()), 2),
+        "hydration_liters": round(float(df["hydration_liters"].mean()), 2),
+        "stress": round(float(df["stress"].mean()), 2),
+        "activity_steps": round(float(df["activity_steps"].mean()), 2),
+        "caffeine": round(float(df["caffeine"].mean()), 2)
     }
-    return baseline
+
+def calculate_population_baseline(df):
+    """
+    Calculate the population average across all users.
+    """
+    return calculate_baseline(df)
 
 def compare_to_baseline(current, baseline):
     """
-    Compare today's health values against
-    the individual's personal baseline.
+    Compare today's health values against the baseline,
+    returning structured deviations.
     """
     comparison = {}
     for key in baseline:
-        if baseline[key] != 0:
-            difference = ((current[key] - baseline[key]) / baseline[key]) * 100
-        else:
-            difference = 0.0
-        comparison[key] = round(difference, 1)
+        if key in current:
+            b = baseline[key]
+            c = current[key]
+            diff = c - b
+            pct = (diff / b * 100) if b != 0 else 0.0
+            
+            comparison[key] = {
+                "current": round(float(c), 2),
+                "baseline": round(float(b), 2),
+                "difference": round(float(diff), 2),
+                "percent_difference": round(float(pct), 1)
+            }
     return comparison
 
 def headache_sleep_pattern(df):
     """
-    Find how often headaches occurred after
-    below-average sleep.
+    Find how often headaches occurred after below-average sleep.
     """
     headache_days = df[df["headache"] == 1]
     
@@ -58,6 +70,7 @@ def discover_headache_relationships(df):
     """
     Discover relationships between health variables
     and headache events using correlation.
+    Returns structured patterns with qualitative labels.
     """
     features = [
         "sleep_hours",
@@ -70,11 +83,25 @@ def discover_headache_relationships(df):
     relationships = []
     
     for feature in features:
-        correlation = df[feature].corr(df["headache"])
+        # Handle cases where standard deviation is zero or data is too uniform
+        if df[feature].std() == 0 or df["headache"].std() == 0:
+            correlation = 0.0
+        else:
+            correlation = df[feature].corr(df["headache"])
+            if np.isnan(correlation):
+                correlation = 0.0
+            
+        strength = abs(float(correlation))
+        
+        direction = "negative" if correlation < 0 else "positive"
+        label = relationship_label(strength)
+        
         relationships.append({
             "feature": feature,
             "correlation": round(float(correlation), 3),
-            "strength": round(abs(float(correlation)), 3)
+            "direction": direction,
+            "strength": round(strength, 3),
+            "label": label
         })
         
     # Strongest relationships first

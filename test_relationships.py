@@ -5,14 +5,16 @@ from services.analytics import (
 )
 
 df = load_health_data("data/health_data.csv")
-relationships = discover_headache_relationships(df)
+from services.user import get_user_data
+user_df = get_user_data(df, "U001")
+relationships = discover_headache_relationships(user_df)
 
 print("\n========== PERSONAL HEALTH RELATIONSHIPS ==========\n")
 for relationship in relationships:
     feature = relationship["feature"]
     correlation = relationship["correlation"]
     strength = relationship["strength"]
-    label = relationship_label(strength)
+    label = relationship["label"]
 
     print(
         f"{feature:20} "

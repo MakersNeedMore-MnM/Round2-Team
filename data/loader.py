@@ -11,6 +11,7 @@ def load_health_data(file_path="data/health_data.csv"):
     df = pd.read_csv(file_path)
     
     expected_cols = [
+        "user_id",
         "date", 
         "sleep_hours", 
         "hydration_liters", 
