@@ -85,3 +85,15 @@ async def get_patterns(user_id: str, df: pd.DataFrame = Depends(get_df)):
             "headache_days": headache_days
         }
     }
+
+@router.get("/{user_id}/timeline")
+async def get_timeline(user_id: str, df: pd.DataFrame = Depends(get_df)):
+    """Return longitudinal health data for the user."""
+    user_df = validate_user(df, user_id)
+    # Convert dates to string for JSON serialization
+    records = user_df.sort_values(by="date", ascending=True).to_dict(orient="records")
+    return {
+        "user_id": user_id,
+        "timeline": records
+    }
+
