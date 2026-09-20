@@ -1,57 +1,89 @@
-# LifePrint 🧬
+# LifePrint – Personalized Health Digital Twin
 
-### A Personalized Health Digital Twin Using AI & Dynamic Health Graphs
+LifePrint is an AI-powered Personalized Health Digital Twin that analyzes longitudinal health data to learn an individual's personal health patterns, relationships, and trends. It provides personalized predictions, explainable insights, a Personal Health Knowledge Graph, and a What-If simulator.
 
-LifePrint is a research prototype that explores how longitudinal personal health data can be used to learn individual-specific patterns and generate personalized, explainable health-event predictions.
+## Problem Statement
 
-## Architecture
+Most health applications only display individual health metrics. They do not learn how different health factors interact for a specific person over time. LifePrint addresses this by continuously analyzing longitudinal health data and building a personalized representation of an individual's health.
 
-The project has been refactored to separate the Python intelligence layer from the frontend in preparation for a React + FastAPI architecture.
+## Key Features
 
-```
-Data
-  ↓
-Data Loader (data/loader.py)
-  ↓
-Analytics (services/analytics.py)
-  ↓
-Prediction (services/prediction.py)
-  ↓
-Graph (services/graph.py)
-  ↓
-What-If (services/what_if.py)
-  ↓
-UI (app.py - Streamlit Adapter)
-```
-
-## Current Prototype
-
-The prototype currently demonstrates:
-
-- Synthetic longitudinal health data generation
-- Personal health baselines
-- Individual pattern discovery
-- Health-event prediction
-- Explainable predictions
+- Personalized health baselines
+- Longitudinal health pattern discovery
+- Personalized health-event prediction
+- Explainable prediction insights
 - Personal Health Knowledge Graph
-- What-If health simulation
+- What-If health scenario simulation
+- Interactive health dashboard
+- Historical health trend analysis
 
 ## Tech Stack
 
-- Python
-- Streamlit
-- Pandas
-- NumPy
-- Scikit-learn
-- Plotly
-- NetworkX
+**Frontend:** React, TypeScript, Vite  
+**Backend:** Python, FastAPI, Uvicorn  
+**AI/ML:** Pandas, NumPy, Scikit-learn  
+**Data & Graphs:** NetworkX, Plotly  
+**Deployment:** GitHub, Render
+
+## How to Run
+
+### Backend
+
+
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload
+
+Backend runs at:
+
+http://127.0.0.1:8000
+
+##Frontend
+
+Open another terminal:
+
+cd frontend
+npm install
+npm run dev
+
+Open the URL shown by Vite, usually:
+
+http://localhost:5173
+
+## Live Demo
+
+Frontend: https://lifeprint1.onrender.com
+
+Backend API: https://lifeprint-g5pn.onrender.com
+
+
+## The prototype demonstrates:
+
+Health dashboard
+Personal health baselines
+Pattern analysis
+Personal Health Knowledge Graph
+Personalized predictions
+Explainable insights
+What-If simulation
+
+
+## Team Members
+Kritika Parashar
+Suchet Mahamuni
+Rugved Kulkarno
+Akanksha Kuvhare
+
+## Future Scope
+Wearable device integration
+Real-time health data
+Medical record integration
+Larger longitudinal datasets
+Advanced AI/ML models
+Scalable health-data storage
+Continuous personalization
+
 
 ## Disclaimer
-
-LifePrint is an academic research prototype and is not intended for medical diagnosis or treatment.
-
-All health data currently used by the prototype is synthetic.
-
-## Status
-
-🚧 Prototype under active development.
+LifePrint is an academic research prototype and is not intended for medical diagnosis or treatment. The current prototype uses synthetic health data and its predictions should not be considered medical advice.
